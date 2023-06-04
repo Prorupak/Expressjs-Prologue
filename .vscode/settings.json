@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "diffEditor.wordWrap": "on",
+  "editor.minimap.autohide": true,
+  "editor.lineHeight": 20
+}
