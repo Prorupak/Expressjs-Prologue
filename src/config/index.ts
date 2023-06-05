@@ -1,4 +1,7 @@
-export { default as config } from "./config";
-export { default as logger } from "./logger";
-export { default as morgan } from "./morgan";
+export { default as configs } from "./configs";
+export * as logger from "./logger";
+export { default as morgans } from "./morgans";
+export { default as connectDB } from "./db";
+export * from "./passport";
+export { default as InitSocket } from "./socket";
 export * from "./roles";
