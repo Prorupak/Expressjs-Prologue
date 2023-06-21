@@ -14,7 +14,8 @@ const environmentVariableNames = {
   JWT_SECRET: "JWT secret key",
   JWT_ACCESS_EXPIRATION_MINUTES: "JWT access token expiration in minutes",
   JWT_REFRESH_EXPIRATION_DAYS: "JWT refresh token expiration in days",
-  JWT_RESET_EMAIL_EXPIRATION_MINUTES: "JWT reset email token expiration in minutes",
+  JWT_RESET_EMAIL_EXPIRATION_MINUTES:
+    "JWT reset email token expiration in minutes",
   USER_VERIFICATION_TOKEN_SECRET: "User verification token secret key",
   CLOUDINARY_NAME: "Cloudinary name",
   CLOUDINARY_API_KEY: "Cloudinary API key",
@@ -27,17 +28,32 @@ function validateEnvironmentVariables() {
   const envVarsSchema = joi
     .object()
     .keys({
-      NODE_ENV: joi.string().valid("production", "development", "test").required(),
+      NODE_ENV: joi
+        .string()
+        .valid("production", "development", "test")
+        .required(),
       PORT: joi.number().default(5000),
-      MONGO_HOST: joi.string().required().description(environmentVariableNames.MONGO_HOST),
-      SEND_GRID_API_KEY: joi.string().required().description(environmentVariableNames.SEND_GRID_API_KEY),
+      MONGO_HOST: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.MONGO_HOST),
+      SEND_GRID_API_KEY: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.SEND_GRID_API_KEY),
       LOG_FORMAT: joi
         .string()
         .valid("combined", "common", "dev", "short", "tiny")
         .default("combined")
         .description(environmentVariableNames.LOG_FORMAT),
-      LOG_DIR: joi.string().required().description(environmentVariableNames.LOG_DIR),
-      JWT_SECRET: joi.string().required().description(environmentVariableNames.JWT_SECRET),
+      LOG_DIR: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.LOG_DIR),
+      JWT_SECRET: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.JWT_SECRET),
       JWT_ACCESS_EXPIRATION_MINUTES: joi
         .number()
         .default(30)
@@ -49,20 +65,39 @@ function validateEnvironmentVariables() {
       JWT_RESET_EMAIL_EXPIRATION_MINUTES: joi
         .number()
         .default(10)
-        .description(environmentVariableNames.JWT_RESET_EMAIL_EXPIRATION_MINUTES),
+        .description(
+          environmentVariableNames.JWT_RESET_EMAIL_EXPIRATION_MINUTES,
+        ),
       USER_VERIFICATION_TOKEN_SECRET: joi
         .string()
         .required()
         .description(environmentVariableNames.USER_VERIFICATION_TOKEN_SECRET),
-      CLOUDINARY_NAME: joi.string().required().description(environmentVariableNames.CLOUDINARY_NAME),
-      CLOUDINARY_API_KEY: joi.string().required().description(environmentVariableNames.CLOUDINARY_API_KEY),
-      CLOUDINARY_API_SECRET: joi.string().required().description(environmentVariableNames.CLOUDINARY_API_SECRET),
-      GOOGLE_CLIENT_ID: joi.string().required().description(environmentVariableNames.GOOGLE_CLIENT_ID),
-      GOOGLE_CLIENT_SECRET: joi.string().required().description(environmentVariableNames.GOOGLE_CLIENT_SECRET),
+      CLOUDINARY_NAME: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.CLOUDINARY_NAME),
+      CLOUDINARY_API_KEY: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.CLOUDINARY_API_KEY),
+      CLOUDINARY_API_SECRET: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.CLOUDINARY_API_SECRET),
+      GOOGLE_CLIENT_ID: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.GOOGLE_CLIENT_ID),
+      GOOGLE_CLIENT_SECRET: joi
+        .string()
+        .required()
+        .description(environmentVariableNames.GOOGLE_CLIENT_SECRET),
     })
     .unknown();
 
-  const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: "key" } }).validate(process.env);
+  const { value: envVars, error } = envVarsSchema
+    .prefs({ errors: { label: "key" } })
+    .validate(process.env);
 
   if (error) {
     console.log(error);
@@ -78,14 +113,18 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:4173/", "http://192.168.1.176:3000"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:4173/",
+      "http://192.168.1.176:3000",
+    ],
     credentials: true,
     preflightContinue: true,
   },
   mongoose: {
     url: envVars.MONGO_HOST,
     options: {
-      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
     },

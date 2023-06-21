@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
-import config from "@/config/configs";
 import winston from "winston";
 import winstonDaily from "winston-daily-rotate-file";
+import config from "./configs";
+
 
 // logs dir
 const logDir: string = join(__dirname, config.logs.dir);

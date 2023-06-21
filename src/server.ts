@@ -1,5 +1,5 @@
-import ExpressPrologue from "./app";
+import Express from "./app";
 
-const app = new ExpressPrologue();
+const app = new Express();
 
 app.listen();

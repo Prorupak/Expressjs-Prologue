@@ -8,8 +8,8 @@ import csurf from "csurf";
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
 import createError from "http-errors";
-import httpStatus from "http-status";
-import { connect } from "mongoose";
+// import httpStatus from "http-status";
+import mongoose, { connect } from "mongoose";
 import morgan from "morgan";
 import passport from "passport";
 import xss from "xss-clean";
@@ -19,7 +19,6 @@ import { logger, stream } from "./config/logger";
 import { jwtStrategy } from "./config/passport";
 import InitSocket from "./config/socket";
 import { ErrorMiddleware } from "./middlewares";
-import apiRoutes from "./routes/api.routes";
 
 colors.enable();
 
@@ -33,7 +32,6 @@ class Express {
 
   constructor() {
     this.app = express();
-
     this.server = new Server(this.app);
     this.env = configs.env || "development";
     this.port = configs.port || 8000;
@@ -56,6 +54,8 @@ class Express {
     this.app.use(morgan(configs.logs.format, { stream }));
     this.app.use(passport.initialize());
     passport.use("jwt", jwtStrategy);
+
+    mongoose.set("strictQuery", true);
 
     // this.app.use("/api", apiRoutes);
 
@@ -83,7 +83,9 @@ class Express {
     this.app
       .listen(9000, () => {
         logger.info(`=================================`.blue.bold);
-        logger.info(`=======`.yellow + ` ENV: ${this.env} `.random + `=======`.yellow);
+        logger.info(
+          `=======`.yellow + ` ENV: ${this.env} `.random + `=======`.yellow,
+        );
         logger.info(`🚀 App listening on the port`.green + ` ${this.port}`.red);
         logger.info(`=================================`.blue);
       })
