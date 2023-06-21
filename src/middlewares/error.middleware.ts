@@ -18,7 +18,13 @@ interface IErrorResponseJSON {
   errors?: any[];
 }
 
-const errorResponseJSON = ({ statusCode, title, type, message, errors = null }: IErrorResponseJSON) => ({
+const errorResponseJSON = ({
+  statusCode,
+  title,
+  type,
+  message,
+  errors = null,
+}: IErrorResponseJSON) => ({
   status_code: statusCode,
   success: false,
   data: null,
@@ -80,7 +86,8 @@ const errorMiddleware = (err: any, req: Request, res: Response) => {
         statusCode: 401,
         title: "Unauthorize Error",
         type: "UNAUTHORIZE_ERROR",
-        message: err?.message || "You're not authorized to perform your request.",
+        message:
+          err?.message || "You're not authorized to perform your request.",
       }),
     );
   }
