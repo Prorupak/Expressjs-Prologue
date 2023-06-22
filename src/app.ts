@@ -19,6 +19,7 @@ import { logger, stream } from "./config/logger";
 import { jwtStrategy } from "./config/passport";
 import InitSocket from "./config/socket";
 import { ErrorMiddleware } from "./middlewares";
+import apiRoutes from "./routes/api.routes";
 
 colors.enable();
 
@@ -57,7 +58,7 @@ class Express {
 
     mongoose.set("strictQuery", true);
 
-    // this.app.use("/api", apiRoutes);
+    this.app.use("/api", apiRoutes);
 
     // catch 404 and forward to error handler
     this.app.use((req, res, next) => {
@@ -66,6 +67,15 @@ class Express {
 
     this.app.use(csurf());
     this.app.use(errorMiddleware);
+
+    process.on("uncaughtException", this.unexpectedErrorHandler);
+    process.on("unhandledRejection", this.unexpectedErrorHandler);
+    process.on("SIGTERM", () => {
+      logger.info("SIGTERM received");
+      if (this.server) {
+        this.server.close();
+      }
+    });
   }
 
   private connectDb() {
@@ -80,8 +90,8 @@ class Express {
   }
 
   public listen(): void {
-    this.app
-      .listen(9000, () => {
+    this.server
+      .listen(this.port, () => {
         logger.info(`=================================`.blue.bold);
         logger.info(
           `=======`.yellow + ` ENV: ${this.env} `.random + `=======`.yellow,
@@ -93,6 +103,22 @@ class Express {
         logger.error(err);
         process.exit(1);
       });
+  }
+
+  public exitHandler(): void {
+    if (this.server) {
+      this.server.close(() => {
+        logger.info(`🔥 Server closed`.yellow);
+        process.exit(1);
+      });
+    } else {
+      process.exit(1);
+    }
+  }
+
+  public unexpectedErrorHandler(error: any): void {
+    logger.error(error);
+    this.exitHandler();
   }
 }
 
