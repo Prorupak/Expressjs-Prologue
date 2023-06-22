@@ -1,9 +1,9 @@
 import { Server } from "http";
 import { Application } from "express";
-import { configs } from "@/config";
-import { ErrorMiddleware } from "@/middlewares";
-import { UserModel } from "@/models";
 import { Socket } from "socket.io/dist/socket";
+import { ErrorMiddleware } from "../middlewares";
+import { UserModels } from "../models";
+import configs from "./configs";
 
 const { ErrorHandler } = ErrorMiddleware;
 
@@ -22,7 +22,7 @@ const socket = (app: Application, server: Server) => {
     console.log(`⚡️: Connected to ${socket.id}`);
 
     socket.on("userConnect", (id: string) => {
-      UserModel.findById(id)
+      UserModels.findById(id)
         .then(user => {
           if (user) {
             socket.join(user._id.toString());

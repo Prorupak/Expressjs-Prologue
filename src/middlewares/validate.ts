@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { Pick } from "@/utils";
 import httpStatus from "http-status";
 import Joi, { Schema, ValidationResult } from "joi";
+import { Pick } from "../utils";
 import ApiError from "../utils/ApiError";
 
 const validate =

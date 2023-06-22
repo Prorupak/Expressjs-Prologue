@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { User } from "@/interfaces/user";
 import httpStatus from "http-status";
 import passport from "passport";
 import { roleRights } from "../config/roles";
+import { User } from "../interfaces/user";
 import ApiError from "../utils/ApiError";
 
 type VerifyCallback = (
