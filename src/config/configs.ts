@@ -4,6 +4,10 @@ import joi from "joi";
 
 dotenv.config({ path: path.join(__dirname, "../../.env.development.local") });
 
+const env = process.env.NODE_ENV || "development";
+
+console.log(`⚡️: Running in ${env} mode`);
+
 const environmentVariableNames = {
   NODE_ENV: "Node environment",
   PORT: "Port",
@@ -17,6 +21,8 @@ const environmentVariableNames = {
   JWT_RESET_EMAIL_EXPIRATION_MINUTES:
     "JWT reset email token expiration in minutes",
   USER_VERIFICATION_TOKEN_SECRET: "User verification token secret key",
+  USER_VERIFICATION_TOKEN_EXPIRATION_MINUTES:
+    "User verification token expiration in minutes",
   CLOUDINARY_NAME: "Cloudinary name",
   CLOUDINARY_API_KEY: "Cloudinary API key",
   CLOUDINARY_API_SECRET: "Cloudinary API secret",
@@ -72,6 +78,12 @@ function validateEnvironmentVariables() {
         .string()
         .required()
         .description(environmentVariableNames.USER_VERIFICATION_TOKEN_SECRET),
+      USER_VERIFICATION_TOKEN_EXPIRATION_MINUTES: joi
+        .number()
+        .default(10)
+        .description(
+          environmentVariableNames.USER_VERIFICATION_TOKEN_EXPIRATION_MINUTES,
+        ),
       CLOUDINARY_NAME: joi
         .string()
         .required()
@@ -142,6 +154,8 @@ const config = {
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_EMAIL_EXPIRATION_MINUTES,
     userVerificationTokenSecret: envVars.USER_VERIFICATION_TOKEN_SECRET,
+    userVerificationTokenExpirationMinutes:
+      envVars.USER_VERIFICATION_TOKEN_EXPIRATION_MINUTES,
   },
   cloudinary: {
     cloudName: envVars.CLOUDINARY_NAME,

@@ -19,11 +19,11 @@ import { logger, stream } from "./config/logger";
 import { jwtStrategy } from "./config/passport";
 import InitSocket from "./config/socket";
 import { ErrorMiddleware } from "./middlewares";
-import apiRoutes from "./routes/api.routes";
+import apiRoutes from "./routes/v1/api.routes";
 
 colors.enable();
 
-const { errorMiddleware } = ErrorMiddleware;
+const { errorMiddleware, errorHandler } = ErrorMiddleware;
 
 class Express {
   public app: express.Application;
@@ -32,22 +32,26 @@ class Express {
   public env: string;
 
   constructor() {
-    this.app = express();
-    this.server = new Server(this.app);
-    this.env = configs.env || "development";
-    this.port = configs.port || 8000;
-    this.connectDb();
-    this.initMiddleware();
-    InitSocket(this.app, this.server);
+    try {
+      this.app = express();
+      this.server = new Server(this.app);
+      this.env = configs.env || "development";
+      this.port = configs.port || 8000;
+      this.connectDb();
+      InitSocket(this.app, this.server);
+      this.initMiddleware();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   private initMiddleware() {
     this.app.disable("x-powered-by");
-    this.app.set("trust proxy", 1);
-    this.app.use(helmet());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.set("trust proxy", 1);
     this.app.use(cors(configs.cors));
+    this.app.use(helmet());
     this.app.use(xss());
     this.app.use(cookieParser());
     this.app.use(compression());
@@ -56,29 +60,21 @@ class Express {
     this.app.use(passport.initialize());
     passport.use("jwt", jwtStrategy);
 
-    mongoose.set("strictQuery", true);
-
     this.app.use("/api", apiRoutes);
 
     // catch 404 and forward to error handler
     this.app.use((req, res, next) => {
       next(createError(404));
     });
-
+    // error handler
     this.app.use(csurf());
-    this.app.use(errorMiddleware);
 
-    process.on("uncaughtException", this.unexpectedErrorHandler);
-    process.on("unhandledRejection", this.unexpectedErrorHandler);
-    process.on("SIGTERM", () => {
-      logger.info("SIGTERM received");
-      if (this.server) {
-        this.server.close();
-      }
-    });
+    this.app.use(errorMiddleware);
+    this.app.use(errorHandler);
   }
 
   private connectDb() {
+    mongoose.set("strictQuery", false);
     connect(connectDB.url, connectDB.options)
       .then(() => {
         logger.info(`🚀 Connected to database`.green);
@@ -92,33 +88,12 @@ class Express {
   public listen(): void {
     this.server
       .listen(this.port, () => {
-        logger.info(`=================================`.blue.bold);
-        logger.info(
-          `=======`.yellow + ` ENV: ${this.env} `.random + `=======`.yellow,
-        );
-        logger.info(`🚀 App listening on the port`.green + ` ${this.port}`.red);
-        logger.info(`=================================`.blue);
+        logger.info(`🚀 Server ready at http://localhost:${this.port}`.green);
       })
       .on("error", (err: any) => {
-        logger.error(err);
-        process.exit(1);
+        console.log(err);
+        // process.exit(1);
       });
-  }
-
-  public exitHandler(): void {
-    if (this.server) {
-      this.server.close(() => {
-        logger.info(`🔥 Server closed`.yellow);
-        process.exit(1);
-      });
-    } else {
-      process.exit(1);
-    }
-  }
-
-  public unexpectedErrorHandler(error: any): void {
-    logger.error(error);
-    this.exitHandler();
   }
 }
 

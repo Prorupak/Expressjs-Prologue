@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import expressWinston from "express-winston";
 import winston from "winston";
 import winstonDaily from "winston-daily-rotate-file";
 import config from "./configs";
@@ -60,6 +61,45 @@ logger.add(
     ),
   }),
 );
+
+// express-winston logger makes sense BEFORE the router.
+export const expressLogger = expressWinston.logger({
+  transports: [
+    new winstonDaily({
+      level: "debug",
+      datePattern: "YYYY-MM-DD",
+      dirname: logDir + "/debug", // log file /logs/debug/*.log in save
+      filename: `%DATE%.log`,
+      maxFiles: 30, // 30 Days saved
+      json: false,
+      zippedArchive: true,
+    }),
+  ],
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json(),
+  ),
+});
+
+// express-winston errorLogger makes sense AFTER the router.
+export const expressErrorLogger = expressWinston.errorLogger({
+  transports: [
+    new winstonDaily({
+      level: "error",
+      datePattern: "YYYY-MM-DD",
+      dirname: logDir + "/error", // log file /logs/error/*.log in save
+      filename: `%DATE%.log`,
+      maxFiles: 30, // 30 Days saved
+      handleExceptions: true,
+      json: false,
+      zippedArchive: true,
+    }),
+  ],
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json(),
+  ),
+});
 
 const stream = {
   write: (message: string) => {

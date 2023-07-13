@@ -1,4 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { logger } from "@/config";
+import config from "@/config/configs";
+import httpStatus from "http-status";
 
 class ErrorHandler extends Error {
   statusCode: number | undefined;
@@ -32,9 +35,14 @@ const errorResponseJSON = ({
   timestamp: new Date().getTime(),
 });
 
-const errorMiddleware = (err: any, req: Request, res: Response) => {
+const errorMiddleware = (
+  err: any,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction,
+) => {
   const { statusCode = 500, message = "Internal Server Error" } = err;
-
   if (err.name === "MongoError" && err.code === 11000) {
     // Mongo error
     const field = Object.keys(err.keyValue);
@@ -140,4 +148,32 @@ const errorMiddleware = (err: any, req: Request, res: Response) => {
   );
 };
 
-export default { errorMiddleware, ErrorHandler };
+const errorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction,
+) => {
+  let { statusCode, message } = err;
+  if (config.env === "production" && !err.isOperational) {
+    statusCode = httpStatus.INTERNAL_SERVER_ERROR;
+    message = httpStatus[httpStatus.INTERNAL_SERVER_ERROR];
+  }
+
+  res.locals.errorMessage = err.message;
+
+  const response = {
+    code: statusCode,
+    message,
+    ...(config.env === "development" && { stack: err.stack }),
+  };
+
+  if (config.env === "development") {
+    logger.logger.error(err);
+  }
+
+  res.status(statusCode).send(response);
+};
+
+export default { errorMiddleware, errorHandler, ErrorHandler };

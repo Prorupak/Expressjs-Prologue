@@ -12,6 +12,7 @@ export const multer = Multer({
   },
 });
 
+// @ts-ignore
 export const uploadImageToStorage = (file: File | File[], folder: string) => {
   if (file) {
     return new Promise(async (resolve, reject) => {

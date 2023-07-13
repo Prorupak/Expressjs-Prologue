@@ -34,7 +34,7 @@ export type User = Document & {
   toUserJSON(): User;
   toProfileJSON(): User;
   generateVerificationKey(): string;
-  passwordMatch(pw: string, callback: (error: any, match: any) => void): void;
+  passwordMatch(pw: string);
   isEmailTaken(email: string): Promise<boolean>;
 };
 

@@ -100,25 +100,6 @@ const userSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-    // toJSON: {
-    //   virtuals: true,
-    //   transform: function (doc, ret) {
-    //     delete ret.password;
-    //     delete ret.provider_access_token;
-    //     delete ret.provider_refresh_token;
-    //     return ret;
-    //   },
-    // },
-    // toObject: {
-    //   virtuals: true,
-    //   getters: true,
-    //   transform: function (doc, ret) {
-    //     delete ret.password;
-    //     delete ret.provider_access_token;
-    //     delete ret.provider_refresh_token;
-    //     return ret;
-    //   },
-    // },
   },
 );
 
@@ -162,16 +143,16 @@ userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
  *                             If there is an error, `error` will contain the error object,
  *                             otherwise, `match` will be a boolean indicating if the passwords match.
  */
-userSchema.methods.passwordMatch = function (
-  this: User,
-  password: string,
-  callback: (error: any, match: any) => void,
-) {
+userSchema.methods.passwordMatch = function (this: User, password: string) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
-  compare(password, user.password, function (error: any, isMatch: boolean) {
-    if (error) return callback(error, null);
-    callback(null, isMatch);
+  return new Promise((resolve, reject) => {
+    compare(password, user.password, (err, match) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(match);
+    });
   });
 };
 

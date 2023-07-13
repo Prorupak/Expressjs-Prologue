@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Document, Model } from "mongoose";
 import { User } from "../user/user.types";
 
 export enum ETokenTypes {

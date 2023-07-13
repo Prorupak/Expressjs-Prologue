@@ -1,4 +1,5 @@
 import { Router } from "express";
+import authRoutes from "./auth.routes";
 import userRoutes from "./user.routes";
 
 const router = Router({ mergeParams: true });
@@ -7,6 +8,10 @@ const defaultRoutes = [
   {
     path: "/users",
     route: userRoutes,
+  },
+  {
+    path: "/auth",
+    route: authRoutes,
   },
 ];
 
